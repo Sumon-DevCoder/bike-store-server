@@ -1,7 +1,5 @@
 import { Router } from "express";
 import { createOrderController, OrderControler } from "./order.controller";
-import { auth } from "../../middlewares/auth";
-import { USER_ROLE } from "../user/user.constant";
 
 const router = Router();
 
@@ -9,19 +7,15 @@ const router = Router();
 router.post("/create", createOrderController);
 
 // get all
-router.get("/", auth(USER_ROLE.admin), OrderControler.getAllOrders);
+router.get("/", OrderControler.getAllOrders);
 
 // get all user
-router.get(
-  "/:email",
-  auth(USER_ROLE.admin, USER_ROLE.user),
-  OrderControler.getAllOrdersByUser
-);
+router.get("/:email", OrderControler.getAllOrdersByUser);
 
 // update
-router.put("/:orderId", auth(USER_ROLE.admin), OrderControler.updateOrder);
+router.put("/:orderId", OrderControler.updateOrder);
 
 // delete
-router.delete("/:orderId", auth(USER_ROLE.admin), OrderControler.deleteOrder);
+router.delete("/:orderId", OrderControler.deleteOrder);
 
 export const OrderRoutes = router;

@@ -1,7 +1,6 @@
 import { StatusCodes } from "http-status-codes";
 import QueryBuilder from "../../builder/QueryBuilder";
 import AppError from "../../error/AppError";
-import { initiatePayment } from "../payment/payment.utils";
 import { IOrder, Order } from "./order.model";
 
 const createOrder = async (orderData: any) => {
@@ -31,11 +30,6 @@ const createOrder = async (orderData: any) => {
     customerPhone: user.phone,
     customerAddress: user.address,
   };
-
-  //payment
-  const paymentSession = await initiatePayment(paymentData);
-
-  return paymentSession;
 };
 
 // get all

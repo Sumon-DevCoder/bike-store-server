@@ -1,7 +1,5 @@
 import { Router } from "express";
 import validateRequest from "../../middlewares/validateRequest";
-import { auth } from "../../middlewares/auth";
-import { USER_ROLE } from "../user/user.constant";
 import { ProductControllers } from "./product.controller";
 import { ProductValidaitonSchema } from "./product.validation";
 
@@ -11,7 +9,6 @@ const router = Router();
 router.post(
   "/",
   validateRequest(ProductValidaitonSchema.createProductValidationSchema),
-  auth(USER_ROLE.admin),
   ProductControllers.createProduct
 );
 
@@ -25,15 +22,10 @@ router.get("/:productId", ProductControllers.getSingleProducts);
 router.put(
   "/:id",
   validateRequest(ProductValidaitonSchema.updateProductValidationSchema),
-  auth(USER_ROLE.admin),
   ProductControllers.updateProduct
 );
 
 // delete
-router.delete(
-  "/:productId",
-  auth(USER_ROLE.admin),
-  ProductControllers.deleteProduct
-);
+router.delete("/:productId", ProductControllers.deleteProduct);
 
 export const ProductRoutes = router;
