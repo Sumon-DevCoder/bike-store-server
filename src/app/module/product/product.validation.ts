@@ -1,39 +1,38 @@
 import { z } from "zod";
+import { TBikeCategory } from "./product.interface";
 
-// Create Product Schema validaiton
+const BikeCategorySchema = z.enum(
+  Object.values(TBikeCategory) as [string, ...string[]]
+);
+
 export const createProductValidationSchema = z.object({
   body: z.object({
     name: z.string().min(1, "Name is required"),
+    brand: z.string().min(1, "Brand is required"),
+    price: z.number().positive("Price must be a positive number"),
+    category: BikeCategorySchema,
     description: z.string().min(1, "Description is required"),
-    price: z.number().min(0, "Price must be a positive number"),
-    isDeleted: z.boolean().default(false).optional(),
-    stockQuantity: z
+    quantity: z
       .number()
       .int()
-      .nonnegative("Stock quantity cannot be negative"),
-    category: z.string().min(1, "Category is required"),
-    image: z.string().url("Image must be a valid URL"),
+      .min(0, "Quantity must be a non-negative integer"),
+    inStock: z.boolean().optional(),
   }),
 });
 
-// Update Product Schema validaiton
 export const updateProductValidationSchema = z.object({
   body: z.object({
-    name: z.string().min(1, "Name is required").optional(),
-    description: z.string().min(1, "Description is required").optional(),
-    price: z.number().min(0, "Price must be a positive number").optional(),
-    stockQuantity: z
-      .number()
-      .int()
-      .nonnegative("Stock quantity cannot be negative")
-      .optional(),
-    category: z.string().min(1, "Category is required").optional(),
-    image: z.string().url("Image must be a valid URL").optional(),
-    isDeleted: z.boolean().default(false).optional(),
+    name: z.string().min(1).optional(),
+    brand: z.string().min(1).optional(),
+    price: z.number().positive().optional(),
+    category: BikeCategorySchema.optional(),
+    description: z.string().min(1).optional(),
+    quantity: z.number().int().min(0).optional(),
+    inStock: z.boolean().optional(),
   }),
 });
 
-export const ProductValidaitonSchema = {
+export const ProductValidation = {
   createProductValidationSchema,
   updateProductValidationSchema,
 };

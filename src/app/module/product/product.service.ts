@@ -13,7 +13,7 @@ const createProductIntoDB = async (payload: TProduct) => {
   });
 
   if (isProductExists) {
-    throw new AppError(StatusCodes.CONFLICT, "Product already exists");
+    throw new AppError(StatusCodes.CONFLICT, "Product Already exists!");
   }
 
   const result = await Product.create(payload);
@@ -46,7 +46,7 @@ const getAllProductFromDB = async (query: Record<string, unknown>) => {
 
 // get single
 const getSingleProductFromDB = async (_id: string) => {
-  const result = await Product.findById({ _id });
+  const result = await Product.findById(_id);
 
   // checking data
   if (result === null) {

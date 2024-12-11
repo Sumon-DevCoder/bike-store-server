@@ -1,9 +1,16 @@
+export enum TBikeCategory {
+  Mountain = "Mountain",
+  Road = "Road",
+  Hybrid = "Hybrid",
+  Electric = "Electric",
+}
+
 export type TProduct = {
   name: string;
-  description: string;
+  brand: string;
   price: number;
-  stockQuantity: number;
-  category: string;
-  isDeleted: boolean;
-  image: string;
+  category: TBikeCategory;
+  description: string;
+  quantity: number;
+  inStock: boolean;
 };
