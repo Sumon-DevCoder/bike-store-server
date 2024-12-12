@@ -1,31 +1,31 @@
 import { Router } from "express";
-import { createOrderController, OrderControler } from "./order.controller";
 import { OrderValidation } from "./order.validation";
 import validateRequest from "../../middlewares/validateRequest";
+import { OrderController } from "./order.controller";
 
 const router = Router();
 
 // Route to create an order
 router.post(
-  "/create",
+  "/",
   validateRequest(OrderValidation.createOrderValidationSchema),
-  createOrderController
+  OrderController.createOrder
 );
 
 // get all
-router.get("/", OrderControler.getAllOrders);
+router.get("/", OrderController.getAllOrders);
 
 // get all user
-router.get("/:email", OrderControler.getAllOrdersByUser);
+router.get("/:email", OrderController.getAllOrdersByUser);
 
 // update
 router.put(
   "/:orderId",
   validateRequest(OrderValidation.updateOrderValidationSchema),
-  OrderControler.updateOrder
+  OrderController.updateOrder
 );
 
 // delete
-router.delete("/:orderId", OrderControler.deleteOrder);
+router.delete("/:orderId", OrderController.deleteOrder);
 
 export const OrderRoutes = router;

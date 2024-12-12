@@ -4,7 +4,7 @@ import catchAsync from "../../utiils/catchAsync";
 import sendResponse from "../../utiils/sendResponse";
 import { StatusCodes } from "http-status-codes";
 
-export const createOrderController = async (req: Request, res: Response) => {
+const createOrder = async (req: Request, res: Response) => {
   try {
     const orderData = req.body;
     const newOrder = await orderService.createOrder(orderData);
@@ -71,9 +71,10 @@ const deleteOrder = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-export const OrderControler = {
+export const OrderController = {
   getAllOrders,
   deleteOrder,
   updateOrder,
   getAllOrdersByUser,
+  createOrder,
 };

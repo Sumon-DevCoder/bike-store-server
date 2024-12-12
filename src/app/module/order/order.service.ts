@@ -3,9 +3,24 @@ import QueryBuilder from "../../builder/QueryBuilder";
 import AppError from "../../error/AppError";
 import Order from "./order.model";
 import { TOrder } from "./order.interface";
+import { Product } from "../product/product.model";
 
 const createOrder = async (payload: TOrder) => {
-  payload.totalPrice = payload.quantity * payload.product?.price;
+  // Order checking
+  const isOrderExists = await Order.findOne({
+    product: payload.product,
+    email: payload.email,
+  });
+
+  if (isOrderExists) {
+    throw new AppError(StatusCodes.CONFLICT, "Order Already exists!");
+  }
+
+  // set total price
+  const product = await Product.findById(payload.product);
+  if (product) {
+    payload.totalPrice = payload.quantity * product?.price;
+  }
 
   const result = await Order.create(payload);
   return result;

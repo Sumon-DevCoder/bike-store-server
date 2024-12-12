@@ -22,8 +22,7 @@ const OrderSchema: Schema = new Schema<TOrder>(
     },
     totalPrice: {
       type: Number,
-      required: true,
-      min: 0, // Ensures totalPrice is not negative
+      default: 0,
     },
   },
   {
