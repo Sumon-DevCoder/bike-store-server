@@ -34,6 +34,17 @@ const getAllOrders = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getRevenue = catchAsync(async (req: Request, res: Response) => {
+  const result = await orderService.getRevenueFromDB();
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Revenue calculated successfully",
+    data: result,
+  });
+});
+
 // get all user
 const getAllOrdersByUser = catchAsync(async (req: Request, res: Response) => {
   const result = await orderService.getAllOrderByUserFromDB(req.params.email);
@@ -77,4 +88,5 @@ export const OrderController = {
   updateOrder,
   getAllOrdersByUser,
   createOrder,
+  getRevenue,
 };

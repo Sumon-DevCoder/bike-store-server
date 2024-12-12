@@ -4,26 +4,79 @@ import AppError from "../../error/AppError";
 import Order from "./order.model";
 import { TOrder } from "./order.interface";
 import { Product } from "../product/product.model";
+import { HttpStatusCode } from "axios";
 
 const createOrder = async (payload: TOrder) => {
-  // Order checking
-  const isOrderExists = await Order.findOne({
+  // setup product logic
+  const product = await Product.findById(payload.product);
+  if (!product) {
+    throw new AppError(HttpStatusCode.NotFound, "Product not found!");
+  }
+
+  // Check enough stock is available
+  if (product.quantity < payload.quantity) {
+    throw new AppError(
+      HttpStatusCode.BadRequest,
+      "Insufficient stock for the requested quantity!"
+    );
+  }
+
+  // Check an existing Order
+  const existingOrder = await Order.findOne({
     product: payload.product,
     email: payload.email,
   });
 
-  if (isOrderExists) {
-    throw new AppError(StatusCodes.CONFLICT, "Order Already exists!");
+  // update existing order
+  if (existingOrder) {
+    // Calculate the difference in quantity
+    const quantityDifference = payload.quantity - existingOrder.quantity;
+
+    if (quantityDifference > 0) {
+      // Additional quantity requested, check stock
+      if (product.quantity < quantityDifference) {
+        throw new AppError(
+          HttpStatusCode.BadRequest,
+          "Insufficient stock for the updated quantity!"
+        );
+      }
+
+      // Deduct the extra quantity from stock
+      product.quantity -= quantityDifference;
+    } else if (quantityDifference < 0) {
+      // Lesser quantity requested, restore stock
+      product.quantity += Math.abs(quantityDifference);
+    }
+
+    // Update the product stock and inStock status
+    product.inStock = product.quantity > 0;
+    await product.save();
+
+    // Update the existing order
+    existingOrder.quantity = payload.quantity;
+    existingOrder.totalPrice = payload.quantity * product.price;
+    return await existingOrder.save();
   }
 
-  // set total price
-  const product = await Product.findById(payload.product);
-  if (product) {
-    payload.totalPrice = payload.quantity * product?.price;
-  }
+  // // Handle new order creation
+  // if (product.quantity < payload.quantity) {
+  //   throw new AppError(
+  //     HttpStatusCode.BadRequest,
+  //     "Insufficient stock for the requested quantity!"
+  //   );
+  // }
 
-  const result = await Order.create(payload);
-  return result;
+  // Deduct stock for the new order
+  product.quantity -= payload.quantity;
+  product.inStock = product.quantity > 0;
+  await product.save();
+
+  // Calculate the total price for the new order
+  payload.totalPrice = payload.quantity * product.price;
+
+  // Create and return the new order
+  const newOrder = await Order.create(payload);
+  return newOrder;
 };
 
 // get all
@@ -46,6 +99,24 @@ const getAllOrderFromDB = async (query: Record<string, unknown>) => {
   return {
     meta,
     result,
+  };
+};
+
+// get revenue
+const getRevenueFromDB = async () => {
+  const result = await Order.aggregate([
+    {
+      $group: {
+        _id: null,
+        totalRevenue: { $sum: "$totalPrice" },
+      },
+    },
+  ]);
+
+  const finalResult = result.length > 0 ? result[0].totalRevenue : 0;
+
+  return {
+    totalRevenue: finalResult,
   };
 };
 
@@ -90,6 +161,7 @@ const deleteOrderIntoDB = async (_id: string) => {
 
 export const orderService = {
   createOrder,
+  getRevenueFromDB,
   getAllOrderFromDB,
   updateOrderIntoDB,
   deleteOrderIntoDB,

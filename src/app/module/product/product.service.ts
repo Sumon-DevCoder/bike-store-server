@@ -85,13 +85,9 @@ const deleteProductIntoDB = async (_id: string) => {
     throw new AppError(StatusCodes.CONFLICT, "Product not exists!");
   }
 
-  const result = await Product.findByIdAndUpdate(
-    _id,
-    { isDeleted: true },
-    {
-      new: true,
-    }
-  );
+  const result = await Product.findByIdAndDelete(_id, {
+    new: true,
+  });
   return result;
 };
 

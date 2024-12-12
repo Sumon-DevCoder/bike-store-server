@@ -15,6 +15,9 @@ router.post(
 // get all
 router.get("/", OrderController.getAllOrders);
 
+// get revenue
+router.get("/revenue", OrderController.getRevenue);
+
 // get all user
 router.get("/:email", OrderController.getAllOrdersByUser);
 
