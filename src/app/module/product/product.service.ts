@@ -16,6 +16,13 @@ const createProductIntoDB = async (payload: TProduct) => {
     throw new AppError(StatusCodes.CONFLICT, "Product Already exists!");
   }
 
+  // check quantity
+  if (payload.quantity > 0) {
+    payload.inStock = true;
+  } else {
+    payload.inStock = false;
+  }
+
   const result = await Product.create(payload);
   return result;
 };

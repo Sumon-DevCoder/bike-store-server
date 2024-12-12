@@ -1,41 +1,20 @@
 import { StatusCodes } from "http-status-codes";
 import QueryBuilder from "../../builder/QueryBuilder";
 import AppError from "../../error/AppError";
-import { IOrder, Order } from "./order.model";
+import Order from "./order.model";
+import { TOrder } from "./order.interface";
 
-const createOrder = async (orderData: any) => {
-  const { user, products } = orderData;
+const createOrder = async (payload: TOrder) => {
+  payload.totalPrice = payload.quantity * payload.product?.price;
 
-  const transactionId = `TXN-${Date.now()}`;
-  const totalPrice = products.reduce(
-    (prev: any, current: { price: any }) => prev + current.price,
-    0
-  );
-
-  const order = new Order({
-    user,
-    totalPrice,
-    status: "unconfirmed",
-    paymentStatus: "Pending",
-    transactionId,
-  });
-
-  await order.save();
-
-  const paymentData = {
-    transactionId,
-    totalPrice,
-    custormerName: user.name,
-    customerEmail: user.email,
-    customerPhone: user.phone,
-    customerAddress: user.address,
-  };
+  const result = await Order.create(payload);
+  return result;
 };
 
 // get all
 const getAllOrderFromDB = async (query: Record<string, unknown>) => {
   // queryBuilder
-  const orderQuery = new QueryBuilder(Order.find().populate("user"), query)
+  const orderQuery = new QueryBuilder(Order.find().populate("product"), query)
     .filter()
     .sort()
     .paginate()
@@ -69,7 +48,7 @@ const getAllOrderByUserFromDB = async (email: string) => {
 };
 
 // update
-const updateOrderIntoDB = async (_id: string, payload: Partial<IOrder>) => {
+const updateOrderIntoDB = async (_id: string, payload: Partial<TOrder>) => {
   // Order checking
 
   const result = await Order.findByIdAndUpdate(_id, payload, {

@@ -1,48 +1,36 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema } from "mongoose";
+import { TOrder } from "./order.interface";
 
-export interface IOrder extends Document {
-  user: {
-    name: string;
-    email: string;
-    phone: string;
-    address: string;
-  };
-  totalPrice: number;
-  status: string;
-  paymentStatus: string;
-  transactionId: string;
-}
-
-const OrderSchema: Schema = new Schema(
+// Define the schema for the Order
+const OrderSchema: Schema = new Schema<TOrder>(
   {
-    user: {
-      name: { type: String, required: true },
-      email: { type: String, required: true },
-      phone: { type: String, required: true },
-      address: { type: String, required: true },
+    email: {
+      type: String,
+      required: true,
+      trim: true,
+      match: /.+\@.+\..+/, // Ensures the email is in a valid format
+    },
+    product: {
+      type: Schema.Types.ObjectId,
+      ref: "Product", // Replace 'Product' with your actual product model name
+      required: true,
+    },
+    quantity: {
+      type: Number,
+      required: true,
+      min: 1, // Ensures quantity is at least 1
     },
     totalPrice: {
       type: Number,
       required: true,
-    },
-    status: {
-      type: String,
-      enum: ["unconfirmed", "confirmed"],
-      default: "Pending",
-    },
-    paymentStatus: {
-      type: String,
-      enum: ["Pending", "Paid", "Failed"],
-      default: "Pending",
-    },
-    transactionId: {
-      type: String,
-      required: true,
+      min: 0, // Ensures totalPrice is not negative
     },
   },
   {
-    timestamps: true,
+    timestamps: true, // Adds createdAt and updatedAt fields automatically
   }
 );
 
-export const Order = mongoose.model<IOrder>("Order", OrderSchema);
+// Create and export the model
+const Order = mongoose.model<TOrder>("Order", OrderSchema);
+export default Order;
